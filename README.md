@@ -3,7 +3,7 @@
 ```
 # configure park id, listen port and interval in config.json
 $ npm i
-$ node local.js
+$ node main.js
 ```
 ## References:
 [Themepark](https://github.com/cubehouse/themepark)

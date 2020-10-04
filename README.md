@@ -6,5 +6,5 @@ $ npm i
 $ node main.js
 ```
 ## References:
-[Themepark](https://github.com/cubehouse/themeparks)
+[Themeparks](https://github.com/cubehouse/themeparks)
 

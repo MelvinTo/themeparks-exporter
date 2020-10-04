@@ -1,3 +1,5 @@
 {
-    "park": "ShanghaiDisneyResortMagicKingdom"
+    "park": "ShanghaiDisneyResortMagicKingdom",
+    "port": 9100,
+    "interval": 300
 }

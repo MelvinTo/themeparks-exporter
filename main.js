@@ -1,42 +1,13 @@
-const client = require('prom-client');
-const waitingGauge = new client.Gauge({ 
-    name: 'themeparks_waiting_time', 
-    help: 'waiting time for configured themeparks',
-    labelNames: ['rideId', 'rideName'],
-});
-
-const Themeparks = require("themeparks");
-const config = require('./config.json');
-if(!config.park) {
-    throw new Error("park in config file is required!")
-}
-
-const park = new Themeparks.Parks[config.park]();
-
+const {checkWaitTimes, getMetrics, getContentType, initExporter} = require('./exporter');
 const express = require('express');
 const server = express();
-
-const register = client.register;
-
-async function checkWaitTimes() {
-    process.stdout.write("Checking waiting time...");
-    const rideTimes = await park.GetWaitTimes();
-    for(const ride of rideTimes) {
-        if(ride.waitTime !== null) {
-            waitingGauge.set({
-                rideName: ride.name,
-                rideId: ride.id
-            }, ride.waitTime)
-        }
-    }
-    process.stdout.write("Done\n");
-}
+const config = require('./config.json');
 
 function setupServer() {
     server.get('/metrics', async (req, res) => {
         try {
-            res.set('Content-Type', register.contentType);
-            res.end(await register.metrics());
+            res.set('Content-Type', getContentType());
+            res.end(await getMetrics());
         } catch (ex) {
             res.status(500).end(ex);
         }
@@ -49,9 +20,17 @@ function setupServer() {
     server.listen(port);
 }
 
+if(!config.park) {
+    console.log("Park Id not configured in config.json!");
+    process.exit(1);
+}
+
+initExporter(config.park)
 setupServer();
+
+const interval = config.interval || 300;
 
 checkWaitTimes();
 setInterval(async () => {
     checkWaitTimes();
-}, 5 * 60 * 1000);
+}, interval * 1000);
